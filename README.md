@@ -9,21 +9,35 @@
 
 ## about Fishcards
 
-This is a learning helper. You learn from flashcards that you can create yourself or ask an agent to create for you. You can organize cards into subjects. One side of a card has a term, the other has a description, and during a learning session you can decide whether to start from the former or the latter (or randomly).
+This is a learning helper. You learn from flashcards that you can create yourself or ask an agent to create for you. You can organize cards into sets. One side of a card has a term, the other has a description, and during a learning session you can decide whether to start from the former or the latter (or randomly).
 
 ## features
 
 - user account and cloud storage of cards and settings
 - multilang: choose the interface language you prefer
 - add, edit, hide and remove cards
-- ask AI to create cards for you
+- ask AI to create cards for you and review what it proposed
 - learning session:
-    - choose subjects and preferences (term -> description, description -> term, or both randomly)
+    - choose cards sets and preferences (term -> description, description -> term, or both randomly)
     - go through cards - you decide when to reveal the other side and can mark how well you did (fail/hard to say/pass)
-    - after the session you see a summary and can choose to hide cards you answered correctly in future sessions
+    - after the session you see a summary and can choose to manually hide cards from future sessions
 - stats show how well you're doing and what needs more work - use them to start a new session or ask the agent to generate new cards
-- AI built in - the user doesn't have to provide a key or configure anything (the application uses my OpenAI API key and Sol on medium thinking)
+- cards selection:
+    - random
+    - ordered
+    - spaced repetition mode (algorithm TBD)
+- AI built in: the user doesn't have to provide a key or configure anything (the application uses my OpenAI API key and Sol on medium thinking)
 - demo version: use a simple predefined set of cards to see the application in action
+- keyboard support for flipping and judging
+- mobile first, but desktop friendly for ease of editing cards
+- export and import cards and settings in single json
+
+## AI support built in
+
+- create a set of new cards using a short prompt
+- add cards to a set using a prompt (existing cards get attached to prevent duplicates); optionally attach stats info so the agent generates cards in areas you struggle with
+- AI is one-shot: you cannot chat with it, only provide a new, better prompt if you don't like the previous cards
+
 
 ## dev notes
 
@@ -33,7 +47,8 @@ This is a learning helper. You learn from flashcards that you can create yoursel
 - OpenSpec for SDD
 - OAuth (Google and GitHub)
 - account creation is blocked (needs an admin invitation or activation by an admin - TBD)
-- Cloudflare Workers with the OpenNext adapter + D1 and SQLite
+- Cloudflare Workers with the OpenNext adapter + D1 and Drizzle
+- a set of prompts with structured output; in some cases the user can optionally add their own prompt
 
 ### design
 
@@ -41,5 +56,4 @@ Not sure about colors yet - TBD. Cards are portrayed as real, horizontal cards (
 
 ### questions
 
-- use headless CMS for cards?
-- langchain or other LLM framework vs pure prompts with schema validation?
+
