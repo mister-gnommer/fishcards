@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Fishbone logo</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse"><stop stop-color="#252b2a"/><stop offset="1" stop-color="#1c2120"/></linearGradient>
+    <linearGradient id="ivory" x1="150" y1="380" x2="884" y2="640" gradientUnits="userSpaceOnUse"><stop stop-color="#f5f2ec"/><stop offset="1" stop-color="#f0ede7"/></linearGradient>
+    <linearGradient id="teal" x1="730" y1="456" x2="790" y2="516" gradientUnits="userSpaceOnUse"><stop stop-color="#31aa9f"/><stop offset="1" stop-color="#2ca99d"/></linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="200" fill="url(#bg)"/>
+  <g id="fishbone">
+    <!-- tail -->
+    <path fill="url(#ivory)" d="M262 512L158 410C148 400 134 406 138 420Q164 512 138 604C134 618 148 624 158 614Z"/>
+    <!-- spine + ribs -->
+    <g fill="none" stroke="url(#ivory)" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M246 512H640"/>
+      <path d="M590 512Q586 436 544 388M590 512Q586 588 544 636"/>
+      <path d="M500 512Q497 448 462 406M500 512Q497 576 462 618"/>
+      <path d="M410 512Q408 460 380 426M410 512Q408 564 380 598"/>
+      <path d="M322 512Q321 474 300 448M322 512Q321 550 300 576"/>
+    </g>
+    <!-- head -->
+    <path fill="url(#ivory)" d="M640 388C756 388 840 440 890 502Q898 512 890 522C840 584 756 636 640 636C628 636 622 626 628 616Q664 568 664 512Q664 456 628 408C622 398 628 388 640 388Z"/>
+    <!-- eye -->
+    <circle cx="768" cy="484" r="30" fill="url(#teal)"/>
+  </g>
+</svg>
