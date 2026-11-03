@@ -1,6 +1,6 @@
 ---
 name: background-work
-ver: 1
+ver: 2
 description: Delegate long-running work to background subagents while continuing the main conversation, such as planning the next change during OpenSpec Apply.
 ---
 
@@ -22,7 +22,7 @@ The parent owns user communication and integration. Default to one worker and th
 
 Include in every worker brief:
 
-> Edit only assigned files; report cross-scope fixes for the parent. Return early with partial work if findings invalidate the task or continuing risks something irreversible. Put assumptions, relevant edge cases, and adjacent problems in a "Surprises" section at the top; ignore out-of-scope trivia. Report changes, checks actually run, remaining issues, and workspace details.
+> Edit only assigned files; report cross-scope fixes for the parent. In a shared checkout, use only read-only git (status, diff, log, show); if you need a clean baseline, say so and let the parent decide. Return early with partial work if findings invalidate the task or continuing risks something irreversible. Put assumptions, relevant edge cases, and adjacent problems in a "Surprises" section at the top; ignore out-of-scope trivia. Report changes, checks actually run, remaining issues, and workspace details.
 
 ## Receive and integrate
 

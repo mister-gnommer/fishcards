@@ -1,6 +1,6 @@
 ---
 name: parallel-plan
-ver: 1
+ver: 2
 description: Creates implementation plans designed for multiple parallel AI agents using exclusive file ownership, dependency waves, integration barriers, parallel verification, and centralized fixes. Use when the user explicitly asks for a parallel plan, multi-agent plan, fan-out/fan-in workflow, or invokes /parallel-plan.
 disable-model-invocation: true
 ---
@@ -145,6 +145,8 @@ coordinate, fix, or wait for other agents' scopes. Temporary cross-lane errors
 are expected. After all lanes finish, the parent agent will integrate and reconcile
 interfaces and fix combined-scope issues. Mention any assumption in your
 handoff, but do not edit outside your allowlist.
+Use only read-only git (status, diff, log, show) in the shared checkout. If you
+need a clean baseline, report it; the parent will decide.
 ```
 
 #### Wave 2 — Integration barrier

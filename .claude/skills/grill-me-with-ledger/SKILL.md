@@ -7,13 +7,13 @@ disable-model-invocation: true
 
 Run the `grilling` skill first (the skill whose `name` is `grilling`) and follow its instructions in full. Then layer these additions on top of that session. If no `grilling` skill is available, stop and ask me to clarify instead of proceeding.
 
-## Continuous numbering
-
-Number questions continuously across rounds and pauses (round 2 starts after round 1's last number), so a bulk reply's numbers are never ambiguous.
-
 ## Lettered choices for bulk replies
 
 When a question has a closed set of answers (finite, mutually exclusive options), list them as lettered choices (**A** / **B** / **C** / **D** …) so I can reply in bulk like `1 A, 2 A, 3 C`. Prefer this whenever the options are naturally closed; skip lettering for open-ended questions.
+
+## Question numbering
+
+Number questions in one increasing sequence for the whole session, never restarting per round; if questions get dropped (e.g. made irrelevant), leave the gaps. When a new session starts and the project already has a ledger, ask whether to continue it (resume after its highest Q number) or start a new ledger with a fresh sequence.
 
 ## Grilling ledger
 
