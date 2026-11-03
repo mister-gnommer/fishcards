@@ -1,11 +1,15 @@
 ---
 name: grill-me-with-ledger
-ver: 2
+ver: 3
 description: A relentless interview (grilling) that offers lettered-choice bulk replies and keeps a running decision ledger. Use when you want a grilling session whose decisions are recorded.
 disable-model-invocation: true
 ---
 
 Run the `grilling` skill first (the skill whose `name` is `grilling`) and follow its instructions in full. Then layer these additions on top of that session. If no `grilling` skill is available, stop and ask me to clarify instead of proceeding.
+
+## Continuous numbering
+
+Number questions continuously across rounds and pauses (round 2 starts after round 1's last number), so a bulk reply's numbers are never ambiguous.
 
 ## Lettered choices for bulk replies
 

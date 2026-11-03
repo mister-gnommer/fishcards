@@ -43,17 +43,24 @@ This is a learning helper. You learn from flashcards that you can create yoursel
 
 ### stack
 
-- Next.js
+- Next.js (App Router)
 - OpenSpec for SDD
-- OAuth (Google and GitHub)
-- account creation is blocked (needs an admin invitation or activation by an admin - TBD)
-- Cloudflare Workers with the OpenNext adapter + D1 and Drizzle
+- Better Auth with OAuth (Google and GitHub); same verified email on both providers = one account
+- no open sign-up: only emails on an admin-managed allowlist can sign in
+- Cloudflare Workers with the OpenNext adapter + D1 and Drizzle, served at `fishcards.gnommer.pl`
+- next-intl, locale in the URL (`/en`, `/pl`)
+- Tailwind + shadcn/ui
+- Vitest + Playwright; GitHub Actions on `main` runs tests, D1 migrations and deploy
 - a set of prompts with structured output; in some cases the user can optionally add their own prompt
+
+### MVP
+
+Built as four OpenSpec changes, in order: `bootstrap` → `auth` → `sets-and-cards` → `learning-session`. Stats, AI, spaced repetition, import/export, the demo and the final look come after. Every judgment is logged from day one, so stats and spaced repetition can use the full history later.
 
 ### design
 
-Not sure about colors yet - TBD. Cards are portrayed as real, horizontal cards (they don't have to be in playing card format). They are dark, with `fishcards-logo.svg` behind the text (the logo can be toned down to keep the text readable). The background will probably be a stock photo (concrete? tabletop?). Card flipping is animated, and answered cards land in three stacks depending on the user's declaration: pass/fail/hard to say (the stacks feature can be deferred).
+Not sure about colors yet - TBD. The MVP uses a plain functional look; the look described here comes in a later change. Cards are portrayed as real, horizontal cards (they don't have to be in playing card format). They are dark, with `fishcards-logo.svg` behind the text (the logo can be toned down to keep the text readable). The background will probably be a stock photo (concrete? tabletop?). Card flipping is animated, and answered cards land in three stacks depending on the user's declaration: pass/fail/hard to say (the stacks feature can be deferred).
 
-### questions
+### decisions
 
-
+Planning decisions and the reasons behind them: [docs/grilling-ledger.md](docs/grilling-ledger.md).
