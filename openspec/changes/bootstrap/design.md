@@ -19,14 +19,18 @@ The agent implementing this has no Cloudflare credentials, so anything that touc
 
 ## Decisions
 
-### Scaffold with the Cloudflare Next.js template, then move it to the repo root
-Generate the app with `create-cloudflare` (`--framework=next`) in a temporary folder, then move it into the repo root next to the existing files and pin every dependency to its exact installed version.
-- **Why:** it is the officially supported way to get OpenNext, `wrangler.jsonc`, `open-next.config.ts` and the `preview`/`deploy` scripts wired up together.
-- **Alternative:** `create-next-app` plus manually adding OpenNext. Same result, but more hand-written config to get wrong.
+### Scaffold with `create-next-app`, then `@opennextjs/cloudflare migrate`
+Run `create-next-app` at the repo root, then `npx @opennextjs/cloudflare migrate`. The migrate command writes `wrangler.jsonc`, `open-next.config.ts` and the `preview`/`deploy`/`cf-typegen` scripts in place. Pin every dependency to its exact installed version.
+- **Why:** both steps are documented by OpenNext and work in place, so nothing has to be moved and the existing `README.md`/`LICENSE` are never at risk of being overwritten.
+- **Alternative:** `create-cloudflare --framework=next --platform=workers` in a temp folder, then move it in. Same result, plus a move and a merge.
 - **Alternative:** app in a subfolder (`app/`). Rejected: the repo is a single app, and a subfolder adds `cd` and path config everywhere.
+- `migrate` may add an R2 incremental-cache binding and config. Remove them (see Non-Goals).
 
 ### Next.js version and middleware file
-Use the newest Next.js major that the current `@opennextjs/cloudflare` release supports. On Next.js 16+, the next-intl middleware lives in `src/proxy.ts`; on earlier versions, `src/middleware.ts`.
+- Use the newest Next.js that the current `@opennextjs/cloudflare` release supports. On 2026-11-03 that is Next.js 16.4.4 with adapter 1.20.15, whose peer range excludes Next.js 16.0 through 16.4.0, so don't pin any of those.
+- Wrangler must satisfy the adapter's peer range.
+- Use the stable `drizzle-orm`/`drizzle-kit` releases, not the `rc` tags shown in Drizzle's D1 guide.
+- On Next.js 16, the next-intl middleware lives in `src/proxy.ts`. The adapter supports it since 1.20.3, but still marks it experimental. If it misbehaves under `preview`, fall back to `src/middleware.ts`.
 
 ### D1 through `getCloudflareContext` and Drizzle; migrations applied by Wrangler
 - Bind the database as `DB` in `wrangler.jsonc`.
@@ -40,6 +44,7 @@ Use the newest Next.js major that the current `@opennextjs/cloudflare` release s
 ### i18n: next-intl with prefix routing and its built-in detection
 - `src/i18n/routing.ts` sets locales `['en', 'pl']`, `defaultLocale: 'en'` and `localePrefix: 'always'`. Pages live under `src/app/[locale]/`.
 - next-intl's middleware already gives the detection order the spec requires (URL prefix, then `NEXT_LOCALE` cookie, then `Accept-Language`, then default). Opening a prefixed URL also updates the cookie, so we write no custom detection code.
+- By default the cookie lasts only for the browser session, and it's only set when the locale differs from the `Accept-Language` match. Setting `localeCookie: { maxAge: 31536000 }` (1 year) in `defineRouting` makes the choice survive restarts, as the spec requires. The cookie only stores a language the user picked, so it counts as a functional preference cookie and needs no consent banner.
 - `[locale]/layout.tsx` calls `notFound()` for unsupported locales and sets `<html lang={locale}>`.
 - The language switcher is next-intl's `Link` with `locale` set to the other language, pointing at the current pathname. Because visiting a prefixed URL updates the cookie, "remember my choice" needs no extra code.
 - Translations live in `messages/en.json` and `messages/pl.json`. English is the source for next-intl's TypeScript message types, so a missing English key fails `tsc`.
@@ -51,7 +56,10 @@ Use whatever Tailwind version the template sets up, then run `shadcn init`. No c
 
 ### Tests
 - **Vitest** (Node environment) runs the translation-parity test, and later all logic tests. `--passWithNoTests` isn't needed, because the parity test exists.
-- **Playwright** (Chromium only) runs against `npm run preview`, so the end-to-end tests exercise the real Workers runtime rather than `next dev`. Each scenario in `specs/localization/spec.md` gets a test. Browser language is set with the context `locale` option, and the remembered choice is tested by switching through the UI and then opening `/`.
+- **Playwright** (Chromium only) runs against `npm run preview`, so the end-to-end tests exercise the real Workers runtime rather than `next dev`. Each scenario in `specs/localization/spec.md` gets a test.
+  - Browser language is set with the context `locale` option, which also sets `Accept-Language`. Its default is `en-US`, so the fallback test uses an unsupported language such as `de-DE`.
+  - The remembered choice is tested by switching through the UI and then opening `/`. The restart scenario is tested by checking that the cookie expires about a year out, then opening `/` in a fresh context that carries only that cookie.
+  - `preview` uses the local D1, so local migrations (`wrangler d1 migrations apply DB --local`) run before Playwright.
 
 ### CI/CD: one GitHub Actions workflow on `main`
 `.github/workflows/deploy.yml` runs on every push to `main`, with `concurrency` set so that deploys never overlap. It runs these steps in order:
@@ -59,7 +67,7 @@ Use whatever Tailwind version the template sets up, then run `shadcn init`. No c
 2. Lint.
 3. `tsc --noEmit`.
 4. Vitest.
-5. Playwright (installing Chromium first).
+5. `wrangler d1 migrations apply DB --local`, then Playwright (installing Chromium first).
 6. `wrangler d1 migrations apply DB --remote`.
 7. `npm run deploy`.
 
@@ -74,7 +82,7 @@ Generate `cloudflare-env.d.ts` with `npm run cf-typegen` and commit it. Typechec
 
 ## Risks / Trade-offs
 
-- [OpenNext may not support the newest Next.js release or its `proxy.ts`] → Pin Next.js to the newest version OpenNext supports, and keep `middleware.ts` if `proxy.ts` doesn't work under `preview`.
+- [`proxy.ts` support in OpenNext is experimental, and its docs lag its changelog] → Keep `middleware.ts` if `proxy.ts` misbehaves under `preview`. The Playwright suite runs against `preview`, so it catches this before deploy.
 - [Playwright against `preview` builds the whole app, so CI is slower] → The suite is a handful of tests, and catching Workers-only failures before deploy is worth a minute.
 - [The first deploy creates the custom domain, which can fail if a DNS record for `fishcards` already exists] → It doesn't exist (checked on 2026-11-03). If the deploy fails, the owner removes the conflicting record.
 - [The D1 database ID is in `wrangler.jsonc`] → The ID isn't a secret. Access is controlled by the API token.
@@ -83,8 +91,8 @@ Generate `cloudflare-env.d.ts` with `npm run cf-typegen` and commit it. Typechec
 ## Migration Plan
 
 Owner steps, once:
-1. Run `npx wrangler login`, then `npx wrangler d1 create fishcards`, and paste the returned `database_id` into `wrangler.jsonc`.
-2. Create a Cloudflare API token with Workers Scripts edit, D1 edit and Workers Routes edit permissions on the `gnommer.pl` zone. Add it and the account ID as the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets.
+1. Run `npx wrangler login`, then `npx wrangler d1 create fishcards --update-config`, which writes the `database_id` into `wrangler.jsonc`. Commit that change.
+2. Create a Cloudflare API token from the "Edit Cloudflare Workers" template, scoped to the account and the `gnommer.pl` zone. Add D1 Edit if the template lacks it, and add Zone DNS Edit only if the first custom-domain deploy fails. Add the token and the account ID as the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets.
 3. Push to `main`. CI deploys and `fishcards.gnommer.pl` goes live.
 
 **Rollback:** `npx wrangler rollback` restores the previous Worker version. This change has no data, so there's nothing to migrate back.

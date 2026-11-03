@@ -40,11 +40,15 @@ When a request has no locale prefix, the system SHALL redirect to the same path 
 - **THEN** the system redirects to `/en`
 
 ### Requirement: Switching language
-Every page SHALL offer a language switcher that opens the same page in the other language and remembers that choice for later visits.
+Every page SHALL offer a language switcher that opens the same page in the other language and remembers that choice for at least a year, across browser restarts.
 
 #### Scenario: Switch and remember
 - **WHEN** a user on `/en` switches to Polish, and later opens `/`
 - **THEN** the user lands on `/pl` both times
+
+#### Scenario: Choice survives a browser restart
+- **WHEN** a user switches to Polish, closes the browser, and opens `/` again within a year
+- **THEN** the user lands on `/pl`
 
 ### Requirement: Complete translations
 Every user-facing text SHALL come from per-language translations, and the English and Polish translations SHALL define the same set of texts. The page's declared document language SHALL match its locale.
