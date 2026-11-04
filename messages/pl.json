@@ -1,0 +1,18 @@
+{
+  "Metadata": {
+    "title": "Fishcards",
+    "description": "Ucz się z fiszek, które tworzysz sam lub z pomocą AI."
+  },
+  "HomePage": {
+    "title": "Fishcards",
+    "description": "Ucz się z fiszek, które tworzysz sam lub z pomocą AI."
+  },
+  "LanguageSwitcher": {
+    "label": "Język",
+    "switchTo": "English"
+  },
+  "NotFoundPage": {
+    "title": "Nie znaleziono strony",
+    "backHome": "Wróć na stronę główną"
+  }
+}

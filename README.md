@@ -53,6 +53,32 @@ This is a learning helper. You learn from flashcards that you can create yoursel
 - Vitest + Playwright; GitHub Actions on `main` runs tests, D1 migrations and deploy
 - a set of prompts with structured output; in some cases the user can optionally add their own prompt
 
+### dev setup
+
+Prerequisites: Node 22 (`.nvmrc`) and npm. Dependencies are pinned to exact versions (`.npmrc` has `save-exact=true`).
+
+```bash
+npm ci
+npm run db:migrate:local   # apply D1 migrations to the local database
+npm run dev                # Next.js dev server with local Cloudflare bindings, http://localhost:3000
+npm run preview            # build and run in the local Workers runtime, http://localhost:8787
+npm run lint
+npm run typecheck
+npm test                   # Vitest
+npx playwright install chromium   # once
+npm run test:e2e           # Playwright against `preview`
+npm run db:generate        # after editing src/db/schema.ts: write a new SQL migration to drizzle/
+npm run cf-typegen         # after editing wrangler.jsonc: regenerate cloudflare-env.d.ts
+```
+
+Every push to `main` runs lint, typecheck and both test suites, then applies D1 migrations and deploys to `fishcards.gnommer.pl` (`.github/workflows/deploy.yml`). Roll back with `npx wrangler rollback`.
+
+One-time owner setup:
+
+1. `npx wrangler login`, then `npx wrangler d1 create fishcards --update-config` and commit the `database_id` it writes to `wrangler.jsonc`.
+2. Create a Cloudflare API token from the "Edit Cloudflare Workers" template, scoped to your account and the `gnommer.pl` zone. Add D1 Edit if the template lacks it, and Zone DNS Edit only if the first custom-domain deploy fails.
+3. Add the GitHub repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+
 ### MVP
 
 Built as four OpenSpec changes, in order: `bootstrap` → `auth` → `sets-and-cards` → `learning-session`. Stats, AI, spaced repetition, import/export, the demo and the final look come after. Every judgment is logged from day one, so stats and spaced repetition can use the full history later.

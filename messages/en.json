@@ -1,0 +1,18 @@
+{
+  "Metadata": {
+    "title": "Fishcards",
+    "description": "Learn with flashcards you create yourself or with AI."
+  },
+  "HomePage": {
+    "title": "Fishcards",
+    "description": "Learn with flashcards you create yourself or with AI."
+  },
+  "LanguageSwitcher": {
+    "label": "Language",
+    "switchTo": "Polski"
+  },
+  "NotFoundPage": {
+    "title": "Page not found",
+    "backHome": "Back to the home page"
+  }
+}
