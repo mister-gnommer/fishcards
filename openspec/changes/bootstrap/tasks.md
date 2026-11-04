@@ -31,6 +31,13 @@
 - [x] 5.1 Run lint, typecheck, Vitest and Playwright locally in one go; verify everything is green from a clean `npm ci`
 - [ ] 5.2 (Owner) Complete the one-time Cloudflare and GitHub steps from the README and push to `main`; verify the workflow is green and `https://fishcards.gnommer.pl` redirects to a localized home page
 
+## 6. Review fixes
+
+- [x] 6.1 Give the deploy workflow a read-only token (`permissions: contents: read`); verify the YAML parses and the token is read-only
+- [x] 6.2 Deploy the `.open-next` build the e2e tests ran against (`opennextjs-cloudflare deploy`) instead of rebuilding; verify no rebuild runs after the e2e step
+- [x] 6.3 Add security headers in `next.config.ts` and `e2e/security-headers.spec.ts` covering `specs/web-security/spec.md`; verify the test passes under `preview` and the browser console shows no CSP violations
+- [x] 6.4 Move `shadcn` to `devDependencies`; verify `npm run build` passes
+
 ## Workflow follow-up
 
 - Run `/opsx:verify`, then archive the change once production is live.

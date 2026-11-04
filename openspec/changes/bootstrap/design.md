@@ -2,7 +2,7 @@
 
 ## Context
 
-The repo has no app code yet: just docs, `openspec/`, `scripts/` and AI tooling. The stack and hosting were settled in the planning interview (`docs/grilling-ledger.md`). The behavior this change must deliver is in `specs/localization/spec.md`. Everything else here is infrastructure that later changes build on.
+The repo has no app code yet: just docs, `openspec/`, `scripts/` and AI tooling. The stack and hosting were settled in the planning interview (`docs/grilling-ledger.md`). The behavior this change must deliver is in `specs/localization/spec.md` and `specs/web-security/spec.md`. Everything else here is infrastructure that later changes build on.
 
 The agent implementing this has no Cloudflare credentials, so anything that touches the owner's Cloudflare account (creating the D1 database, the first deploy, GitHub secrets) is an owner step.
 
@@ -60,18 +60,23 @@ Use whatever Tailwind version the template sets up, then run `shadcn init`. No c
   - Browser language is set with the context `locale` option, which also sets `Accept-Language`. Its default is `en-US`, so the fallback test uses an unsupported language such as `de-DE`.
   - The remembered choice is tested by switching through the UI and then opening `/`. The restart scenario is tested by checking that the cookie expires about a year out, then opening `/` in a fresh context that carries only that cookie.
   - `preview` uses the local D1, so local migrations (`wrangler d1 migrations apply DB --local`) run before Playwright.
+  - `e2e/security-headers.spec.ts` covers `specs/web-security/spec.md`.
 
 ### CI/CD: one GitHub Actions workflow on `main`
-`.github/workflows/deploy.yml` runs on every push to `main`, with `concurrency` set so that deploys never overlap. It runs these steps in order:
+`.github/workflows/deploy.yml` runs on every push to `main`, with `concurrency` set so that deploys never overlap. The job runs with a read-only `GITHUB_TOKEN` (`permissions: contents: read`), because `npm ci` executes third-party install scripts. It runs these steps in order:
 1. Node 22 setup and `npm ci`.
 2. Lint.
 3. `tsc --noEmit`.
 4. Vitest.
 5. `wrangler d1 migrations apply DB --local`, then Playwright (installing Chromium first).
 6. `wrangler d1 migrations apply DB --remote`.
-7. `npm run deploy`.
+7. `opennextjs-cloudflare deploy`, which ships the `.open-next` build the e2e tests ran against instead of rebuilding.
 
 Credentials come from the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets. A failing step stops the deploy.
+
+### Security headers in `next.config.ts`
+Every response gets a baseline Content Security Policy (Next.js's "without nonces" variant, minus `upgrade-insecure-requests`, which would break the http localhost preview), plus HSTS, `nosniff`, `X-Frame-Options: DENY`, a strict referrer policy and a restrictive `Permissions-Policy`. An e2e test checks the headers survive the OpenNext build.
+- **Alternative:** nonce-based CSP in `proxy.ts`. It's stronger against inline-script XSS, but every page has to render dynamically and the nonce has to be threaded through. Revisit once user content is rendered (`sets-and-cards`).
 
 ### Custom domain in `wrangler.jsonc`
 - `routes: [{ "pattern": "fishcards.gnommer.pl", "custom_domain": true }]` makes Cloudflare create the DNS record and certificate on deploy.

@@ -12,7 +12,8 @@ Fishcards has docs and planning but no code. Every MVP change after this one (`a
 - next-intl with the locale in the URL (`/en`, `/pl`): `/` redirects to the remembered or browser language, and a language switcher is shown on every page.
 - One localized home page with the app name and a one-line description.
 - Vitest (logic tests) and Playwright (end-to-end tests) set up, with tests for the localization behavior.
-- GitHub Actions on push to `main`: lint, typecheck, tests, D1 migrations, deploy to `fishcards.gnommer.pl`.
+- Baseline security headers on every response: a Content Security Policy without nonces, HSTS, `nosniff`, and frame and referrer policies.
+- GitHub Actions on push to `main`: lint, typecheck, tests, D1 migrations, deploy to `fishcards.gnommer.pl`, with a read-only GitHub token; the deployed build is the one the end-to-end tests ran against.
 
 **Out of scope:** sign-in and any user data (`auth`), sets and cards, learning sessions, the final look (colors, dark cards, logo, flip animation), favicon and branding, the demo, preview environments, and analytics.
 
@@ -21,6 +22,7 @@ Fishcards has docs and planning but no code. Every MVP change after this one (`a
 ### New Capabilities
 
 - `localization`: interface languages (English and Polish), locale in the URL, detecting and remembering the user's language, switching it, and keeping both translations complete.
+- `web-security`: the browser-hardening headers the app sends with every page.
 
 ### Modified Capabilities
 
