@@ -32,5 +32,5 @@ None. There are no existing specs.
 
 - **New code:** the whole app skeleton at the repo root (`src/`, `messages/`, `e2e/`, config files). The existing `openspec/`, `docs/`, `scripts/` and `.claude/` stay as they are.
 - **New dependencies (exact versions):** `next`, `react`, `react-dom`, `@opennextjs/cloudflare`, `wrangler`, `drizzle-orm`, `drizzle-kit`, `next-intl`, `tailwindcss`, the shadcn/ui base packages, `vitest`, `@playwright/test`, and the TypeScript and ESLint tooling from the Next.js starter.
-- **Cloudflare (owner's account):** a Worker named `fishcards`, a D1 database `fishcards`, and a custom domain `fishcards.gnommer.pl` (the `gnommer.pl` zone is already on Cloudflare).
+- **Cloudflare (owner's account):** a Worker named `fishcards`, a D1 database `fishcards-db`, and a custom domain `fishcards.gnommer.pl` (the `gnommer.pl` zone is already on Cloudflare).
 - **GitHub:** a deploy workflow that needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets, which the owner adds.

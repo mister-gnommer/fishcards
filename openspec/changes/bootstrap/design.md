@@ -96,8 +96,9 @@ Generate `cloudflare-env.d.ts` with `npm run cf-typegen` and commit it. Typechec
 ## Migration Plan
 
 Owner steps, once:
-1. Run `npx wrangler login`, then `npx wrangler d1 create fishcards --update-config`, which writes the `database_id` into `wrangler.jsonc`. Commit that change.
-2. Create a Cloudflare API token from the "Edit Cloudflare Workers" template, scoped to the account and the `gnommer.pl` zone. Add D1 Edit if the template lacks it, and add Zone DNS Edit only if the first custom-domain deploy fails. Add the token and the account ID as the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets.
-3. Push to `main`. CI deploys and `fishcards.gnommer.pl` goes live.
+The exact steps are in the README ("One-time owner setup"). The token decision:
+- **Two tokens.** Cloudflare can scope a token to specific Workers, but only Workers that already exist, and custom domains need Zone → Workers Routes → Edit. So a 1-day broad token runs the first deploy, which creates the Worker and the custom domain. After that, CI uses a long-lived account-owned token scoped to the `fishcards` Worker (Editor) plus D1 Edit, with an expiry, and the temporary token is deleted. A leaked CI token then cannot touch any other Worker in the account.
+- **Alternative:** one account-wide token. Simpler, but it can edit every current and future Worker in the account.
+- D1 Edit appears to be account-wide; the docs show no per-database scoping.
 
 **Rollback:** `npx wrangler rollback` restores the previous Worker version. This change has no data, so there's nothing to migrate back.

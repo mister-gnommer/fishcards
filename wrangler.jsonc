@@ -18,9 +18,8 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "fishcards",
-			// Placeholder until `wrangler d1 create fishcards --update-config` writes the real id.
-			"database_id": "00000000-0000-0000-0000-000000000000",
+			"database_name": "fishcards-db",
+			"database_id": "9767182e-4b5d-4dd6-9c57-85b4833dce09",
 			"migrations_dir": "drizzle"
 		}
 	]

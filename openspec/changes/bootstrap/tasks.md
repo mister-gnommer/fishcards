@@ -29,7 +29,8 @@
 ## 5. Integration
 
 - [x] 5.1 Run lint, typecheck, Vitest and Playwright locally in one go; verify everything is green from a clean `npm ci`
-- [ ] 5.2 (Owner) Complete the one-time Cloudflare and GitHub steps from the README and push to `main`; verify the workflow is green and `https://fishcards.gnommer.pl` redirects to a localized home page
+- [ ] 5.2 (Owner) Complete the one-time Cloudflare and GitHub steps from the README (D1 database, account ID secret, temporary token for the first deploy) and push to `main`; verify the workflow is green and `https://fishcards.gnommer.pl` redirects to a localized home page
+- [ ] 5.3 (Owner) Swap the temporary token for the long-lived token scoped to the `fishcards` Worker, then push a change to `main`; verify the deploy is still green and the temporary token is deleted
 
 ## 6. Review fixes
 

@@ -75,9 +75,10 @@ Every push to `main` runs lint, typecheck and both test suites, then applies D1 
 
 One-time owner setup:
 
-1. `npx wrangler login`, then `npx wrangler d1 create fishcards --update-config` and commit the `database_id` it writes to `wrangler.jsonc`.
-2. Create a Cloudflare API token from the "Edit Cloudflare Workers" template, scoped to your account and the `gnommer.pl` zone. Add D1 Edit if the template lacks it, and Zone DNS Edit only if the first custom-domain deploy fails.
-3. Add the GitHub repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+1. Create the D1 database: dashboard → Storage & databases → D1 → Create (ours is `fishcards-db`). Put its name and Database ID into `wrangler.jsonc` and commit. (`npx wrangler d1 create <name> --update-config` does the same from a local clone.)
+2. Add the GitHub repository secret `CLOUDFLARE_ACCOUNT_ID`.
+3. First deploy, with a temporary broad token (per-Worker tokens can only select a Worker that already exists): create a custom API token with a 1-day TTL and Account → Workers (Admin, or legacy Workers Scripts Edit), Account → D1 → Edit, and Zone → Workers Routes → Edit for the `gnommer.pl` zone only. Save it as the `CLOUDFLARE_API_TOKEN` secret and push to `main`. The deploy creates the Worker and the custom domain.
+4. Replace it with the long-lived narrow token: Manage Account → Account API Tokens → an account-owned token scoped to **Specified Workers → `fishcards`** with the Editor role, plus Account → D1 → Edit, with an expiry (for example 1 year; rotate it). Update the secret, then delete the temporary token. If a later deploy fails on the custom domain, add Zone → Workers Routes → Edit for `gnommer.pl` only.
 
 ### MVP
 
