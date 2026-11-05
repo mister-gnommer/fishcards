@@ -32,6 +32,7 @@ On Workers, bindings and secrets live in the request context (`getCloudflareCont
 - Account linking: Better Auth's default implicit linking, which only links when the provider reports the email as verified. No `trustedProviders`, and no `updateUserInfoOnLink`.
 - Session: defaults (7 days, refreshed daily). Cookie cache stays off, so sign-out and allowlist removals take effect on the next request.
 - Rate limiting: Better Auth's default (on in production, in-memory per isolate). That's weak across isolates, but sign-in is OAuth-only and allowlisted, so there are no passwords to guess. Revisit if email/password is ever added.
+- `account.encryptOAuthTokens`: on. Better Auth stores each provider's tokens, which the app never uses, so they're encrypted with `BETTER_AUTH_SECRET` (added after code review).
 - `nextCookies()` as the last plugin, so cookies set from server code reach the browser.
 
 ### Allowlist check is one pure function
@@ -39,10 +40,10 @@ On Workers, bindings and secrets live in the request context (`getCloudflareCont
 - If `validateUserInfo` turns out not to receive `emailVerified`, set `requireEmailVerification: true` on both providers instead and keep the list check. Both reach the spec's "unverified email" outcome.
 
 ### Session access goes through `getSessionUser()`
-`src/auth/session.ts` exports `getSessionUser()`. It calls `auth.api.getSession({ headers })` and returns `null` unless the session exists **and** `isAllowed()` still passes. This is the per-request allowlist check from the spec. Protected pages call it and `redirect()` to the landing page when it returns `null`. The landing page calls it and redirects signed-in users to `/[locale]/sets`.
+`src/auth/session.ts` exports `getSessionUser()`. It calls `auth.api.getSession({ headers })` and returns `null` unless the session exists **and** `isAllowed()` still passes. This is the per-request allowlist check from the spec. It's wrapped in React `cache`, so the header and the page share one lookup per render. Protected pages call it and `redirect()` to the landing page when it returns `null`. The landing page calls it and redirects signed-in users to `/[locale]/sets`.
 
 ### Routes and UI
-- `src/app/api/auth/[...all]/route.ts`: `toNextJsHandler(getAuth().handler)`. `/api` is already outside the next-intl matcher.
+- `src/app/api/auth/[...all]/route.ts`: `GET`/`POST` call `getAuth().handler(request)` per request. `toNextJsHandler(auth)` would build the instance at module load, where bindings don't exist. `/api` is already outside the next-intl matcher.
 - `src/auth/client.ts`: `createAuthClient()` from `better-auth/react`.
 - A sign-in buttons client component calls `signIn.social({ provider, callbackURL: "/<locale>/sets", errorCallbackURL: "/<locale>" })`, so the user stays in the language they started from. Better Auth appends `?error=…` to the error URL, and the landing page turns any error into the localized no-access message.
 - The header shows the email and a sign-out button when `getSessionUser()` returns a user. Sign-out calls `signOut()`, then navigates to `/<locale>`.
@@ -50,9 +51,10 @@ On Workers, bindings and secrets live in the request context (`getCloudflareCont
 - All new texts are added to `messages/en.json` and `messages/pl.json`. The parity test covers them.
 
 ### Schema and the first migration
-Generate the Drizzle schema for Better Auth's core tables (`user`, `session`, `account`, `verification`) with Better Auth's CLI into `src/db/auth-schema.ts` and export it from `src/db/schema.ts`. Then `npm run db:generate` writes the first SQL migration to `drizzle/`, and CI applies it to `fishcards-db` on merge. If the CLI cannot load the binding-based config in Node, write the schema from Better Auth's documented core schema instead; `drizzle-kit generate` output then shows whether the tables match.
+Generate the Drizzle schema for Better Auth's core tables (`user`, `session`, `account`, `verification`) with Better Auth's CLI (`auth generate --adapter drizzle --dialect sqlite`, run against a throwaway config with no bindings) into `src/db/auth-schema.ts` and export it from `src/db/schema.ts`. Then `npm run db:generate` writes the first SQL migration to `drizzle/`, and CI applies it to `fishcards-db` on merge. If the CLI cannot load the binding-based config in Node, write the schema from Better Auth's documented core schema instead; `drizzle-kit generate` output then shows whether the tables match.
 
 ### Secrets and configuration
+- `wrangler.jsonc` sets `dev.host` to `localhost:8787`. Without it, local mode rewrites `Host` and `Origin` to the route's domain (`fishcards.gnommer.pl`), so Better Auth rejects every cookie-bearing request from the local browser as `INVALID_ORIGIN`. Found while implementing; it affects local mode only.
 - Worker secrets: `BETTER_AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` and `ALLOWED_EMAILS`. The owner sets them in the dashboard (Worker → Settings → Variables and Secrets), so no local clone is needed.
 - `wrangler.jsonc` `vars` holds `BETTER_AUTH_URL`. It isn't secret.
 - `.dev.vars.example` is committed with every key and dummy values (`.gitignore` already allows it). `npm run cf-typegen` regenerates the env types after the change.
@@ -61,7 +63,7 @@ Generate the Drizzle schema for Better Auth's core tables (`user`, `session`, `a
 
 ### Tests
 - **Vitest:** `isAllowed()` covers the empty list, case and spaces, unverified emails and a missing email.
-- **Playwright sign-in without OAuth:** `e2e/support/auth.ts` builds a test-only instance, `betterAuth({ ...authOptions(env, db), plugins: [testUtils()] })`. It reaches the same local D1 and `.dev.vars` that `preview` uses through Wrangler's `getPlatformProxy()`. It creates a user, then adds the session cookies to the browser context with `getCookies({ userId, domain: "localhost" })`. `testUtils` is never in `src/`, so it can't ship.
+- **Playwright sign-in without OAuth:** `e2e/support/auth.ts` builds a test-only instance, `betterAuth({ ...authOptions(env, db), plugins: [testUtils()] })`. It reaches the same local D1 and `.dev.vars` that `preview` uses through Wrangler's `getPlatformProxy()`. It creates a user, then adds the session cookies to the browser context with `getCookies({ userId, domain: "localhost" })`. `testUtils` is never in `src/`, so it can't ship. The test instance drops `user.validateUserInfo`, because that hook needs an HTTP endpoint context that `saveUser` doesn't have. That's safe: the app's per-request allowlist check still applies, and one e2e test signs in a non-allowlisted email to prove it.
   - This cross-process setup isn't documented. Task 1 is a spike that proves it before anything else is built on it.
 - **e2e scenarios:** the signed-out landing page shows both buttons, a signed-out visit to `/pl/sets` redirects, a signed-in visit shows the email, sign-out works, a user removed from the allowlist is treated as signed out (sign in as an email that isn't on the test allowlist), and an `?error=` landing page shows the no-access message. The real OAuth round trip and linking can't be automated without provider accounts, so the owner checks them manually after deploy.
 - **CI:** before the e2e step, write `.dev.vars` from `.dev.vars.example` with a random `BETTER_AUTH_SECRET` and `ALLOWED_EMAILS=e2e@example.com`.

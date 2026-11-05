@@ -28,6 +28,8 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      # Local auth config for `preview`: dummy OAuth ids and a throwaway secret that never leaves the runner.
+      - run: sed "s|^BETTER_AUTH_SECRET=.*|BETTER_AUTH_SECRET=$(openssl rand -base64 32)|" .dev.vars.example > .dev.vars
       - run: npx playwright install --with-deps chromium
       # Playwright's webServer applies local D1 migrations, then starts `preview`.
       - run: npm run test:e2e

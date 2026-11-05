@@ -17,7 +17,10 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@base-ui/react": "1.9.0",
     "@opennextjs/cloudflare": "1.20.16",
+    "better-auth": "1.7.17",
+    "class-variance-authority": "0.7.1",
     "cn": "0.5.2",
     "drizzle-orm": "0.45.4",
     "next": "16.4.5",

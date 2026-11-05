@@ -59,6 +59,7 @@ Prerequisites: Node 22 (`.nvmrc`) and npm. Dependencies are pinned to exact vers
 
 ```bash
 npm ci
+cp .dev.vars.example .dev.vars   # local secrets; set BETTER_AUTH_SECRET to a long random string
 npm run db:migrate:local   # apply D1 migrations to the local database
 npm run dev                # Next.js dev server with local Cloudflare bindings, http://localhost:3000
 npm run preview            # build and run in the local Workers runtime, http://localhost:8787
@@ -84,6 +85,13 @@ One-time owner setup:
    - Workers Routes Read and Write on the `gnommer.pl` domain (every deploy re-sends the custom domain, so this is required)
 
    Update the secret, then delete the temporary token. Prefer an expiry and rotate the token.
+
+Sign-in setup (owner, once):
+
+1. **Google:** in Google Cloud Console create an OAuth client ID (type "Web application") with redirect URIs `https://fishcards.gnommer.pl/api/auth/callback/google` and `http://localhost:8787/api/auth/callback/google`. While the consent screen is in "Testing", add every allowlisted email as a test user.
+2. **GitHub:** GitHub allows one callback URL per OAuth app, so create two under Settings → Developer settings → OAuth Apps: production with callback `https://fishcards.gnommer.pl/api/auth/callback/github`, and local with `http://localhost:8787/api/auth/callback/github`.
+3. **Worker secrets:** in the Cloudflare dashboard (Workers & Pages → `fishcards` → Settings → Variables and Secrets) add `BETTER_AUTH_SECRET` (a long random string, e.g. `openssl rand -base64 32`), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` (production app) and `ALLOWED_EMAILS` (comma-separated). `BETTER_AUTH_URL` is already set in `wrangler.jsonc`.
+4. **Local:** `.dev.vars` (from `.dev.vars.example`) uses the local Google client and GitHub app. Real sign-in works through `npm run preview` on port 8787; tests don't need real OAuth. `NEXTJS_ENV` (added by OpenNext) only picks which `.env.*` file Next.js reads in local Workers mode.
 
 ### MVP
 

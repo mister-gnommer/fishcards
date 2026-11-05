@@ -1,2 +1,2 @@
-// Tables are added by the feature changes (auth, sets-and-cards, learning-session).
-export {};
+// Better Auth's tables; regenerate with the Better Auth CLI (`auth generate --adapter drizzle --dialect sqlite`).
+export * from "./auth-schema";

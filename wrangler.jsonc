@@ -12,6 +12,11 @@
 		"binding": "ASSETS"
 	},
 	"workers_dev": false,
+	// Local mode would otherwise rewrite Host/Origin to the route's domain, which Better Auth rejects as a foreign origin.
+	"dev": { "host": "localhost:8787" },
+	"vars": {
+		"BETTER_AUTH_URL": "https://fishcards.gnommer.pl"
+	},
 	"routes": [
 		{ "pattern": "fishcards.gnommer.pl", "custom_domain": true }
 	],

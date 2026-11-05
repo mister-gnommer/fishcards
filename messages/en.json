@@ -5,7 +5,8 @@
   },
   "HomePage": {
     "title": "Fishcards",
-    "description": "Learn with flashcards you create yourself or with AI."
+    "description": "Learn with flashcards you create yourself or with AI.",
+    "noAccess": "This account doesn't have access to Fishcards."
   },
   "LanguageSwitcher": {
     "label": "Language",
@@ -14,5 +15,16 @@
   "NotFoundPage": {
     "title": "Page not found",
     "backHome": "Back to the home page"
+  },
+  "SignIn": {
+    "google": "Sign in with Google",
+    "github": "Sign in with GitHub"
+  },
+  "Header": {
+    "signOut": "Sign out"
+  },
+  "SetsPage": {
+    "title": "Your sets",
+    "empty": "You don't have any sets yet. Creating them is coming soon."
   }
 }

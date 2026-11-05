@@ -5,7 +5,8 @@
   },
   "HomePage": {
     "title": "Fishcards",
-    "description": "Ucz się z fiszek, które tworzysz sam lub z pomocą AI."
+    "description": "Ucz się z fiszek, które tworzysz sam lub z pomocą AI.",
+    "noAccess": "To konto nie ma dostępu do Fishcards."
   },
   "LanguageSwitcher": {
     "label": "Język",
@@ -14,5 +15,16 @@
   "NotFoundPage": {
     "title": "Nie znaleziono strony",
     "backHome": "Wróć na stronę główną"
+  },
+  "SignIn": {
+    "google": "Zaloguj się przez Google",
+    "github": "Zaloguj się przez GitHub"
+  },
+  "Header": {
+    "signOut": "Wyloguj się"
+  },
+  "SetsPage": {
+    "title": "Twoje zestawy",
+    "empty": "Nie masz jeszcze żadnych zestawów. Tworzenie ich już wkrótce."
   }
 }

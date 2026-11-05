@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { SiteHeader } from "@/components/site-header";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
@@ -48,9 +48,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
     >
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider>
-          <header className="flex justify-end p-4">
-            <LanguageSwitcher />
-          </header>
+          <SiteHeader />
           {children}
         </NextIntlClientProvider>
       </body>
