@@ -71,7 +71,7 @@ npm run db:generate        # after editing src/db/schema.ts: write a new SQL mig
 npm run cf-typegen         # after editing wrangler.jsonc: regenerate cloudflare-env.d.ts
 ```
 
-Every push to `main` runs lint, typecheck and both test suites, then applies D1 migrations and deploys to `fishcards.gnommer.pl` (`.github/workflows/deploy.yml`). Roll back with `npx wrangler rollback`.
+Work goes through pull requests into `main` (GitHub Flow). `.github/workflows/ci.yml` runs lint, typecheck and both test suites on every pull request; a push to `main` (a merged pull request) runs them again, then applies D1 migrations and deploys to `fishcards.gnommer.pl`. Roll back with `npx wrangler rollback`.
 
 One-time owner setup:
 
