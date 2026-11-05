@@ -2,7 +2,7 @@
 
 ## 1. Scaffold
 
-- [x] 1.1 Run `create-next-app` at the repo root (TypeScript, App Router, `src/` dir, Tailwind, ESLint) without touching `README.md`, `LICENSE`, `.claude/`, `openspec/`, `docs/` or `scripts/`, then `npx @opennextjs/cloudflare migrate`; verify `npm run dev` serves the starter page and `git diff README.md LICENSE` is empty
+- [x] 1.1 Run `create-next-app` (done in a scratch folder and copied to the repo root, which was not empty) (TypeScript, App Router, `src/` dir, Tailwind, ESLint) without touching `README.md`, `LICENSE`, `.claude/`, `openspec/`, `docs/` or `scripts/`, then `npx @opennextjs/cloudflare migrate`; verify `npm run dev` serves the starter page and `git diff README.md LICENSE` is empty
 - [x] 1.2 Pin every dependency in `package.json` to its exact installed version: the newest Next.js within the installed `@opennextjs/cloudflare` peer range (16.4.4 with 1.20.15 as of 2026-11-03; never 16.0–16.4.0), a Wrangler within that range, and stable `drizzle-orm`/`drizzle-kit`. Add `.nvmrc` (22) and `engines.node`; verify `npm ci` succeeds without peer warnings and `package.json` has no `^`/`~`
 - [x] 1.3 Extend `.gitignore` with `.open-next/`, `.wrangler/`, `.dev.vars*`, `test-results/`, `playwright-report/`; verify `git status` shows no build or test output after a build
 - [x] 1.4 Run `shadcn init` (base setup only, no components); verify `components.json` and the `cn` helper exist and `npm run build` passes
@@ -30,7 +30,7 @@
 
 - [x] 5.1 Run lint, typecheck, Vitest and Playwright locally in one go; verify everything is green from a clean `npm ci`
 - [x] 5.2 (Owner) Complete the one-time Cloudflare and GitHub steps from the README (D1 database, account ID secret, temporary token for the first deploy) and push to `main`; verify the workflow is green and `https://fishcards.gnommer.pl` redirects to a localized home page
-- [ ] 5.3 (Owner) Swap the temporary token for the long-lived token scoped to the `fishcards` Worker, then push a change to `main`; verify the deploy is still green and the temporary token is deleted
+- [x] 5.3 (Owner) Swap the temporary token for the long-lived token scoped to the `fishcards` Worker, then push a change to `main`; verify the deploy is still green and the temporary token is deleted
 
 ## 6. Review fixes
 

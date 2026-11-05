@@ -78,7 +78,12 @@ One-time owner setup:
 1. Create the D1 database: dashboard → Storage & databases → D1 → Create (ours is `fishcards-db`). Put its name and Database ID into `wrangler.jsonc` and commit. (`npx wrangler d1 create <name> --update-config` does the same from a local clone.)
 2. Add the GitHub repository secret `CLOUDFLARE_ACCOUNT_ID`.
 3. First deploy, with a temporary broad token (per-Worker tokens can only select a Worker that already exists): create a custom API token with a 1-day TTL and Account → Workers (Admin, or legacy Workers Scripts Edit), Account → D1 → Edit, and Zone → Workers Routes → Edit for the `gnommer.pl` zone only. Save it as the `CLOUDFLARE_API_TOKEN` secret and push to `main`. The deploy creates the Worker and the custom domain.
-4. Replace it with the long-lived narrow token: Manage Account → Account API Tokens → an account-owned token scoped to **Specified Workers → `fishcards`** with the Editor role, plus Account → D1 → Edit, with an expiry (for example 1 year; rotate it). Update the secret, then delete the temporary token. If a later deploy fails on the custom domain, add Zone → Workers Routes → Edit for `gnommer.pl` only.
+4. Replace it with the long-lived narrow token. Use **Manage Account → Account API Tokens** (not My Profile → API Tokens, which has no per-Worker scope) and grant:
+   - Workers → `fishcards` → Individual Workers Editor
+   - D1 Read and Write on the account (D1 can't be scoped to one database)
+   - Workers Routes Read and Write on the `gnommer.pl` domain (every deploy re-sends the custom domain, so this is required)
+
+   Update the secret, then delete the temporary token. Prefer an expiry and rotate the token.
 
 ### MVP
 

@@ -20,14 +20,14 @@ The agent implementing this has no Cloudflare credentials, so anything that touc
 ## Decisions
 
 ### Scaffold with `create-next-app`, then `@opennextjs/cloudflare migrate`
-Run `create-next-app` at the repo root, then `npx @opennextjs/cloudflare migrate`. The migrate command writes `wrangler.jsonc`, `open-next.config.ts` and the `preview`/`deploy`/`cf-typegen` scripts in place. Pin every dependency to its exact installed version.
+Run `create-next-app`, then `npx @opennextjs/cloudflare migrate` at the repo root. In practice `create-next-app` ran in a scratch folder and its files were copied in, because the repo root was not empty; `README.md` and `LICENSE` stayed untouched. The migrate command writes `wrangler.jsonc`, `open-next.config.ts` and the `preview`/`deploy`/`cf-typegen` scripts in place. Pin every dependency to its exact installed version.
 - **Why:** both steps are documented by OpenNext and work in place, so nothing has to be moved and the existing `README.md`/`LICENSE` are never at risk of being overwritten.
 - **Alternative:** `create-cloudflare --framework=next --platform=workers` in a temp folder, then move it in. Same result, plus a move and a merge.
 - **Alternative:** app in a subfolder (`app/`). Rejected: the repo is a single app, and a subfolder adds `cd` and path config everywhere.
 - `migrate` may add an R2 incremental-cache binding and config. Remove them (see Non-Goals).
 
 ### Next.js version and middleware file
-- Use the newest Next.js that the current `@opennextjs/cloudflare` release supports. On 2026-11-03 that is Next.js 16.4.4 with adapter 1.20.15, whose peer range excludes Next.js 16.0 through 16.4.0, so don't pin any of those.
+- Use the newest Next.js that the current `@opennextjs/cloudflare` release supports. Implemented with Next.js 16.4.5 and adapter 1.20.16 (2026-11-04); that adapter's peer range is `>=15.5.29 <16 || >=16.4.5`, so earlier 16.x releases don't qualify.
 - Wrangler must satisfy the adapter's peer range.
 - Use the stable `drizzle-orm`/`drizzle-kit` releases, not the `rc` tags shown in Drizzle's D1 guide.
 - On Next.js 16, the next-intl middleware lives in `src/proxy.ts`. The adapter supports it since 1.20.3, but still marks it experimental. If it misbehaves under `preview`, fall back to `src/middleware.ts`.
@@ -66,9 +66,9 @@ Use whatever Tailwind version the template sets up, then run `shadcn init`. No c
 `.github/workflows/deploy.yml` runs on every push to `main`, with `concurrency` set so that deploys never overlap. The job runs with a read-only `GITHUB_TOKEN` (`permissions: contents: read`), because `npm ci` executes third-party install scripts. It runs these steps in order:
 1. Node 22 setup and `npm ci`.
 2. Lint.
-3. `tsc --noEmit`.
+3. `npm run typecheck` (`next typegen && tsc --noEmit`; the route types must be generated first).
 4. Vitest.
-5. `wrangler d1 migrations apply DB --local`, then Playwright (installing Chromium first).
+5. Playwright (installing Chromium first). Its `webServer` runs `wrangler d1 migrations apply DB --local` before starting `preview`.
 6. `wrangler d1 migrations apply DB --remote`.
 7. `opennextjs-cloudflare deploy`, which ships the `.open-next` build the e2e tests ran against instead of rebuilding.
 
@@ -97,7 +97,7 @@ Generate `cloudflare-env.d.ts` with `npm run cf-typegen` and commit it. Typechec
 
 Owner steps, once:
 The exact steps are in the README ("One-time owner setup"). The token decision:
-- **Two tokens.** Cloudflare can scope a token to specific Workers, but only Workers that already exist, and custom domains need Zone → Workers Routes → Edit. So a 1-day broad token runs the first deploy, which creates the Worker and the custom domain. After that, CI uses a long-lived account-owned token scoped to the `fishcards` Worker (Editor) plus D1 Edit, with an expiry, and the temporary token is deleted. A leaked CI token then cannot touch any other Worker in the account.
+- **Two tokens.** Cloudflare can scope a token to specific Workers, but only Workers that already exist, and custom domains need Zone → Workers Routes → Edit. So a 1-day broad token runs the first deploy, which creates the Worker and the custom domain. After that, CI uses a long-lived account-owned token scoped to the `fishcards` Worker (Editor), plus D1 Read/Write and Workers Routes Read/Write on `gnommer.pl`, and the temporary token is deleted. The zone permission is required on every deploy, not just the first, because `wrangler deploy` re-sends the custom domain each time (confirmed by a failed deploy without it). A leaked CI token then cannot touch any other Worker in the account.
 - **Alternative:** one account-wide token. Simpler, but it can edit every current and future Worker in the account.
 - D1 Edit appears to be account-wide; the docs show no per-database scoping.
 
