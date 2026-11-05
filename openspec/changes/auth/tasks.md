@@ -34,4 +34,4 @@
 - Run `/opsx:verify` and a code review before marking the PR ready.
 - Owner, before merge: create the OAuth apps and set the Worker secrets (README).
 - After merge and deploy: sign in with Google and GitHub using the same email (one account), try an email that isn't on the allowlist, and check that the `account` row's tokens are not stored in plain text.
-- Archive the change after the manual checks pass.
+- Archive the change as the last commit of the PR, after CI is green and verify is clean; the manual checks run after merge and any failure becomes a new fix change.
