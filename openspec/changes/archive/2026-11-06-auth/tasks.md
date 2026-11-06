@@ -20,7 +20,7 @@
 
 ## 4. CI and docs
 
-- [ ] 4.1 In `.github/workflows/ci.yml`, write `.dev.vars` from `.dev.vars.example` with a random `BETTER_AUTH_SECRET` and `ALLOWED_EMAILS=e2e@example.com` before the e2e step; verify the PR's `ci` check passes
+- [x] 4.1 In `.github/workflows/ci.yml`, write `.dev.vars` from `.dev.vars.example` with a random `BETTER_AUTH_SECRET` and `ALLOWED_EMAILS=e2e@example.com` before the e2e step; verify the PR's `ci` check passes
 - [x] 4.2 Add the auth owner steps to the README (Google OAuth client and redirect URIs, two GitHub OAuth apps, the six Worker secrets in the dashboard, local `.dev.vars`); verify every key in `.dev.vars.example` is mentioned
 
 ## 5. Review fixes
