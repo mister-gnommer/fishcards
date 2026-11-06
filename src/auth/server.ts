@@ -1,8 +1,8 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { cache } from "react";
 import { getDb } from "@/db";
+import { getEnv } from "@/env";
 import { authOptions } from "./options";
 
 /**
@@ -11,7 +11,7 @@ import { authOptions } from "./options";
  */
 export const getAuth = cache(() =>
   betterAuth({
-    ...authOptions(getCloudflareContext().env, getDb()),
+    ...authOptions(getEnv(), getDb()),
     plugins: [nextCookies()],
   }),
 );

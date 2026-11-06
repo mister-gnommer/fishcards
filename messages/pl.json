@@ -21,7 +21,8 @@
     "github": "Zaloguj się przez GitHub"
   },
   "Header": {
-    "signOut": "Wyloguj się"
+    "signOut": "Wyloguj się",
+    "signOutFailed": "Nie udało się wylogować, spróbuj ponownie."
   },
   "SetsPage": {
     "title": "Twoje zestawy",

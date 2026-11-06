@@ -28,6 +28,8 @@
 - [x] 5.1 Encrypt stored provider OAuth tokens (`account.encryptOAuthTokens`); verify the e2e suite still passes
 - [x] 5.2 Cache `getSessionUser()` per render so the header and page share one session lookup; verify typecheck and e2e pass
 - [x] 5.3 Add an e2e test that the GitHub button starts OAuth with our callback URL (navigation to GitHub intercepted); verify it passes
+- [x] 5.4 Add `src/env.ts` with `getEnv()` and use it in `getDb()`, `getAuth()` and `getSessionUser()`; add an ESLint `no-restricted-imports` rule for `@opennextjs/cloudflare` outside `src/env.ts`; verify lint, typecheck and e2e pass
+- [x] 5.5 Make sign-out check the `signOut()` result: on an error or a thrown failure, stay on the page and show a localized "Couldn't sign out" message (en and pl); add an e2e test with the sign-out request failing; verify `npm test` and e2e pass
 
 ## Workflow follow-up
 

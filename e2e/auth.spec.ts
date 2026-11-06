@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Route, test } from "@playwright/test";
 import { signIn } from "./support/auth";
 
 // Must match ALLOWED_EMAILS in .dev.vars (copied from .dev.vars.example).
@@ -50,6 +50,24 @@ test("signing out ends the session", async ({ page, context }) => {
   await page.goto("/en/sets");
   await expect(page).toHaveURL("/en");
 });
+
+for (const [failure, fail] of [
+  ["an HTTP error", (route) => route.fulfill({ status: 500 })],
+  ["a network error", (route) => route.abort()],
+] satisfies [string, (route: Route) => Promise<void>][]) {
+  test(`a sign-out that fails with ${failure} keeps the user on the page with a message`, async ({
+    page,
+    context,
+  }) => {
+    await signIn(context, ALLOWED);
+    await page.goto("/en/sets");
+    await page.route("**/api/auth/sign-out", fail);
+    await page.getByRole("button", { name: "Sign out" }).click();
+
+    await expect(page.getByText("Couldn't sign out, please try again.")).toBeVisible();
+    await expect(page).toHaveURL("/en/sets");
+  });
+}
 
 test("a session whose email is no longer on the allowlist is treated as signed out", async ({
   page,

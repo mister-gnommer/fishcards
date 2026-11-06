@@ -21,7 +21,8 @@
     "github": "Sign in with GitHub"
   },
   "Header": {
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "signOutFailed": "Couldn't sign out, please try again."
   },
   "SetsPage": {
     "title": "Your sets",

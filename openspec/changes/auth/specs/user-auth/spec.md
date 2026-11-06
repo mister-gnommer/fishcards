@@ -63,3 +63,7 @@ While signed in, every page SHALL show the user's email and a sign-out button. S
 #### Scenario: Sign out
 - **WHEN** a signed-in user selects "Sign out"
 - **THEN** the user lands on the landing page and opening a protected page again redirects there
+
+#### Scenario: Sign-out fails
+- **WHEN** a signed-in user selects "Sign out" and the request fails
+- **THEN** the user stays on the current page and sees a localized message that signing out didn't work

@@ -1,6 +1,6 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { headers } from "next/headers";
 import { cache } from "react";
+import { getEnv } from "@/env";
 import { isAllowed } from "./allowlist";
 import { getAuth } from "./server";
 
@@ -15,7 +15,7 @@ export const getSessionUser = cache(async () => {
     return null;
   }
   const { email, emailVerified } = session.user;
-  return isAllowed(email, emailVerified, getCloudflareContext().env.ALLOWED_EMAILS)
+  return isAllowed(email, emailVerified, getEnv().ALLOWED_EMAILS)
     ? session.user
     : null;
 });

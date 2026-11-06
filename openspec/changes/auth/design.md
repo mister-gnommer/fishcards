@@ -6,6 +6,8 @@
 
 On Workers, bindings and secrets live in the request context (`getCloudflareContext().env`), not in `process.env` at module load. That shapes how the auth instance is built.
 
+App code reads them only through `getEnv()` in `src/env.ts`, and an ESLint `no-restricted-imports` rule keeps `@opennextjs/cloudflare` out of every other app file (build config files excepted). It is deliberately a single helper, not an interface or adapter: it centralizes access without trying to make the app portable.
+
 ## Goals / Non-Goals
 
 **Goals:**
@@ -20,7 +22,7 @@ On Workers, bindings and secrets live in the request context (`getCloudflareCont
 ## Decisions
 
 ### Auth instance built per request from the request's bindings
-`src/auth/server.ts` exports `getAuth()`, wrapped in React `cache` like `getDb()`. It builds `betterAuth(authOptions(env, db))` from `getCloudflareContext().env` and `getDb()`. `authOptions()` is a plain function shared with the test-only instance (see Tests), so both sign cookies and read users the same way.
+`src/auth/server.ts` exports `getAuth()`, wrapped in React `cache` like `getDb()`. It builds `betterAuth(authOptions(env, db))` from `getEnv()` and `getDb()`. `authOptions()` is a plain function shared with the test-only instance (see Tests), so both sign cookies and read users the same way.
 - **Alternative:** a module-level `auth` as in Better Auth's examples. Rejected: env and the D1 binding are not available at module load on Workers.
 
 ### Better Auth configuration
@@ -46,7 +48,7 @@ On Workers, bindings and secrets live in the request context (`getCloudflareCont
 - `src/app/api/auth/[...all]/route.ts`: `GET`/`POST` call `getAuth().handler(request)` per request. `toNextJsHandler(auth)` would build the instance at module load, where bindings don't exist. `/api` is already outside the next-intl matcher.
 - `src/auth/client.ts`: `createAuthClient()` from `better-auth/react`.
 - A sign-in buttons client component calls `signIn.social({ provider, callbackURL: "/<locale>/sets", errorCallbackURL: "/<locale>" })`, so the user stays in the language they started from. Better Auth appends `?error=…` to the error URL, and the landing page turns any error into the localized no-access message.
-- The header shows the email and a sign-out button when `getSessionUser()` returns a user. Sign-out calls `signOut()`, then navigates to `/<locale>`.
+- The header shows the email and a sign-out button when `getSessionUser()` returns a user. Sign-out calls `signOut()`, then navigates to `/<locale>`. `signOut()` returns `{ error }` instead of throwing on HTTP errors, so the button checks it and catches thrown network errors; on failure it stays put and shows a localized message, since the landing page would otherwise bounce the still-signed-in user back to their sets.
 - `src/app/[locale]/sets/page.tsx` is a protected "Your sets" placeholder that `sets-and-cards` replaces.
 - All new texts are added to `messages/en.json` and `messages/pl.json`. The parity test covers them.
 
