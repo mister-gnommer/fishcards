@@ -1,0 +1,11 @@
+# OpenNext: which .env.* file Next.js reads in local Workers mode.
+NEXTJS_ENV=development
+BETTER_AUTH_URL=http://localhost:8787
+# Any long random string locally, e.g. `openssl rand -base64 32`.
+BETTER_AUTH_SECRET=change-me-to-a-long-random-string
+# From the local Google OAuth client and the local GitHub OAuth app (see README); dummies work for tests.
+GOOGLE_CLIENT_ID=dummy
+GOOGLE_CLIENT_SECRET=dummy
+GITHUB_CLIENT_ID=dummy
+GITHUB_CLIENT_SECRET=dummy
+ALLOWED_EMAILS=e2e@example.com
